@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResQRoute | Intelligent Emergency Routing for Indian Responders</title>
+    <meta name="description" content="An intelligent, adaptive emergency routing platform leveraging live telemetry and proactive traffic alerts to ensure faster, safer emergency response.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet JS for Interactive Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    
+    <!-- Background Glow Effects -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+    
+    <!-- Header / Navbar -->
+    <header class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <span class="logo-text">ResQ<span class="accent">Route</span></span>
+            </div>
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#mission">Mission</a>
+            </nav>
+            <button class="btn-primary small" id="loginBtn">Responder Login</button>
+        </div>
+    </header>
+
+    <!-- App View Container (Wraps Landing Page so we can hide it) -->
+    <div id="landingView">
+
+        <!-- Live Emergency Ticker -->
+        <div class="emergency-ticker">
+            <div class="ticker-strip">
+                <span class="ticker-item"><span class="dot red"></span> 🚨 CODE RED — Multi-vehicle pileup on Western Express Highway, Mumbai</span>
+                <span class="ticker-item"><span class="dot green"></span> ✅ Medic Unit MH-07 arrived at Andheri East</span>
+                <span class="ticker-item"><span class="dot orange"></span> ⚠️ Heavy waterlogging reported near Sion-Panvel Highway</span>
+                <span class="ticker-item"><span class="dot red"></span> 🔥 Fire reported — Goregaon Industrial Area. 2 units dispatched</span>
+                <span class="ticker-item"><span class="dot green"></span> ✅ Route cleared: Bandra-Worli Sea Link now open</span>
+                <span class="ticker-item"><span class="dot orange"></span> ⚠️ Monsoon alert: Reduced visibility on NH-48 Pune Highway</span>
+                <!-- Duplicate for seamless loop -->
+                <span class="ticker-item"><span class="dot red"></span> 🚨 CODE RED — Multi-vehicle pileup on Western Express Highway, Mumbai</span>
+                <span class="ticker-item"><span class="dot green"></span> ✅ Medic Unit MH-07 arrived at Andheri East</span>
+                <span class="ticker-item"><span class="dot orange"></span> ⚠️ Heavy waterlogging reported near Sion-Panvel Highway</span>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container hero-content">
+                <div class="hero-text-content">
+                    <div class="badge fade-in-up">🇮🇳 Made for Indian Emergency Services</div>
+                    <h1 class="fade-in-up delay-1">Every Second Counts.<br>We Make Sure You <span class="text-gradient">Don't Lose Them.</span></h1>
+                    <p class="hero-subtitle fade-in-up delay-2">Intelligent emergency routing that adapts in real-time across Mumbai, Delhi, Bangalore and all Indian metros. Navigate through monsoon waterlogging, traffic jams, and road blockages.</p>
+                    <div class="hero-cta fade-in-up delay-3">
+                        <button class="btn-primary large" onclick="document.getElementById('loginModal').classList.add('active')">Access Dashboard</button>
+                        <button class="btn-secondary large" onclick="document.getElementById('heroMapSection').scrollIntoView({behavior:'smooth'})">View Live Map</button>
+                    </div>
+
+                    <!-- Animated Stats Counters -->
+                    <div class="hero-stats fade-in-up delay-4">
+                        <div class="stat-counter">
+                            <span class="stat-number" data-target="1247">0</span>
+                            <span class="stat-label">Lives Saved</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-counter">
+                            <span class="stat-number" data-target="38">0</span><span class="stat-suffix">%</span>
+                            <span class="stat-label">Faster Response</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-counter">
+                            <span class="stat-number" data-target="15">0</span>
+                            <span class="stat-label">Cities Active</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hero Visual: REAL India Map -->
+                <div class="hero-visual fade-in-right delay-4">
+                    <div class="hero-map-wrapper glass-card">
+                        <div class="hero-map-header">
+                            <div class="window-controls"><span></span><span></span><span></span></div>
+                            <div class="mockup-title">🇮🇳 Live Dispatch — Mumbai Metro Area</div>
+                        </div>
+                        <div id="heroMap" class="hero-map-body"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="container section-header text-center fade-in-up scroll-trigger">
+                <h2 class="section-title">Built for the Extremes</h2>
+                <p class="section-desc">Conventional navigation fails when conditions change rapidly. Our platform is designed specifically for the unpredictable nature of emergency response.</p>
+            </div>
+            
+            <div class="container feature-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card glass-card hover-glow scroll-trigger">
+                    <div class="feature-icon code-blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <h3>Adaptive Real-Time Routing</h3>
+                    <p>Continuously polls for traffic delays and automatically switches to faster routes if ETAs improve significantly.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card glass-card hover-glow scroll-trigger">
+                    <div class="feature-icon code-red">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <h3>Hazard & Disruption Alerts</h3>
+                    <p>High-visibility pop-ups and audio alerts for sudden road closures, accidents, or severe weather conditions.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card glass-card hover-glow scroll-trigger">
+                    <div class="feature-icon code-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <h3>Live Fleet Telemetry</h3>
+                    <p>Streams GPS coordinates, speed, and status directly to the dispatch center for total operational visibility.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dispatch Dashboard Preview Section -->
+        <section class="dashboard-preview" id="dashboard">
+            <div class="container dashboard-preview-content scroll-trigger">
+                <div class="preview-text">
+                    <div class="badge accent-blue">Command Center</div>
+                    <h2 class="section-title">Total Oversight for Dispatchers</h2>
+                    <p class="section-desc">Maintain a global view of all emergencies and active units. With our intelligent dispatching, assign the most optimal unit based on traffic context, not just straight-line distance.</p>
+                    
+                    <ul class="benefit-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span>Macro-Traffic Overlays of city-wide blockages</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span>Draw "no-go" polygons to force fleet detours</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span>Instant WebSocket communication with responders</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="preview-image glass-card hover-lift">
+                   <!-- Abstract representation of the dashboard -->
+                   <div class="abstract-dash">
+                       <div class="abstract-header"></div>
+                       <div class="abstract-content">
+                           <div class="line w-full"></div>
+                           <div class="line w-3-4"></div>
+                           <div class="line w-1-2"></div>
+                           <div class="stat-boxes">
+                               <div class="stat-box code-blue"></div>
+                               <div class="stat-box code-green"></div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container footer-content">
+                <div class="footer-brand">
+                     <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span class="logo-text">ResQ<span class="accent">Route</span></span>
+                    </div>
+                    <p>Intelligent routing for those who save lives. Built for speed, reliability, and precision.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Product</h4>
+                        <a href="#">Responder App</a>
+                        <a href="#">Dispatch Web</a>
+                        <a href="#">API Integration</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Company</h4>
+                        <a href="#">About Us</a>
+                        <a href="#">Mission</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+            </div>
+            <div class="container footer-bottom">
+                <p>&copy; 2026 ResQRoute Emergency Navigation. All rights reserved.</p>
+            </div>
+        </footer>
+    </div> <!-- End Landing View -->
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content glass-card modal-slide-up">
+            <button class="modal-close" id="closeLoginBtn">×</button>
+            <div class="modal-header">
+                <h2>Responder Authentication</h2>
+                <p>Select your fleet type and assign your unit to begin communication.</p>
+            </div>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="vehicle-selector">
+                    <label class="vehicle-option code-blue">
+                        <input type="radio" name="vehicleType" value="police" checked>
+                        <div class="vehicle-card">
+                            <span class="v-icon">🚓</span>
+                            <span class="v-label">Police</span>
+                        </div>
+                    </label>
+                    <label class="vehicle-option code-red">
+                        <input type="radio" name="vehicleType" value="fire">
+                        <div class="vehicle-card">
+                            <span class="v-icon">🚒</span>
+                            <span class="v-label">Fire</span>
+                        </div>
+                    </label>
+                    <label class="vehicle-option code-green">
+                        <input type="radio" name="vehicleType" value="ambulance">
+                        <div class="vehicle-card">
+                            <span class="v-icon">🚑</span>
+                            <span class="v-label">Ambulance</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Driver Name</label>
+                        <input type="text" id="driverName" placeholder="e.g. Rajesh Kumar" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phoneNo" placeholder="+91 98765 43210" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hospital / Station Name</label>
+                        <input type="text" id="hospitalName" placeholder="e.g. Cooper Hospital, Andheri">
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Reg. No.</label>
+                        <input type="text" id="vehicleNo" placeholder="e.g. MH-02-AB-1234" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Assigned Unit ID / Callsign</label>
+                        <input type="text" id="unitId" placeholder="e.g. MEDIC-4 or PCR-42" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pincode (Area)</label>
+                        <input type="text" id="pincode" placeholder="e.g. 400058" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Dispatcher Passcode</label>
+                    <input type="password" id="passcode" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full large mt-2" id="authSubmitBtn">Authenticate Unit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Responder Dashboard View (Hidden by default) -->
+    <div id="responderView" class="hidden">
+        <!-- Dashboard Header -->
+        <header class="dash-header glass-nav relative">
+            <div class="nav-container dash-nav">
+                <div class="logo">
+                     <span class="logo-text">ResQ<span class="accent">Route</span> <span class="badge accent-blue dash-badge" id="dashVehicleBadge">🚓 POLICE UNIT ADAM-12</span></span>
+                </div>
+                <div class="dash-status">
+                    <div class="status-indicator live"></div>
+                    <span>Data Link Active</span>
+                    <button class="btn-secondary small" id="logoutBtn" style="margin-left: 15px;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="dash-grid-container">
+            <!-- Left Side: Telemetry & Controls -->
+            <div class="dash-sidebar">
+                
+                <!-- Status Toggles & Override -->
+                <div class="dash-card glass-panel status-controls">
+                    <div class="header-split">
+                        <h3>Current Status</h3>
+                        <button class="btn-primary pre-emption-btn glow-pulse" id="overrideBtn">
+                            <span class="icon">🚥</span> PRE-EMPTION
+                        </button>
+                    </div>
+                    <div class="status-buttons">
+                        <button class="status-btn active" data-status="en-route">En Route</button>
+                        <button class="status-btn" data-status="on-scene">On Scene</button>
+                        <button class="status-btn" data-status="transporting">Transporting</button>
+                    </div>
+                </div>
+
+                <!-- Live Telemetry -->
+                <div class="dash-card glass-panel telemetry-widget">
+                    <h3>Live Telemetry</h3>
+                    <div class="telemetry-grid">
+                        <div class="t-data">
+                            <div class="t-label">Speed</div>
+                            <div class="t-val"><span id="metricSpeed">72</span> <small>km/h</small></div>
+                        </div>
+                        <div class="t-data code-green">
+                            <div class="t-label">Fuel Level</div>
+                            <div class="t-val"><span id="metricFuel">78</span><small>%</small></div>
+                        </div>
+                        <div class="t-data">
+                            <div class="t-label">Est. Time of Arrival</div>
+                            <div class="t-val code-blue" id="metricETA">6m 45s</div>
+                        </div>
+                        <div class="t-data">
+                            <div class="t-label">Distance</div>
+                            <div class="t-val">4.2 <small>km</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment / Code Details & Weather Intel -->
+                <div class="assignment-weather-grid">
+                    <div class="dash-card glass-panel assignment-widget">
+                        <h3>Active Assignment</h3>
+                        <div class="incident-code code-red">CODE 3 - MULTI-VEHICLE COLLISION</div>
+                        <p class="incident-address">Western Express Hwy, Santacruz Flyover, Mumbai</p>
+                        <p class="incident-desc text-muted">3 lanes blocked near Santacruz junction. Heavy monsoon congestion. Approach via service road.</p>
+                    </div>
+                    
+                    <div class="dash-card glass-panel weather-widget">
+                        <h3>Microclimate</h3>
+                        <div class="weather-content">
+                            <div class="w-icon code-blue">🌧️</div>
+                            <div class="w-data">
+                                <strong>Heavy Monsoon Rain</strong>
+                                <span class="w-alert code-red">Waterlogging Alert</span>
+                                <span class="text-muted">Visibility low, braking distance +30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts Stream -->
+                <div class="dash-card glass-panel alerts-widget">
+                    <h3>Route Alerts</h3>
+                    <div class="alert-list">
+                        <div class="alert-item high">
+                            <span class="warning-icon">⚠️</span>
+                            <div>
+                                <strong>Waterlogging at Andheri Subway</strong>
+                                <span>1.2 km ahead</span>
+                            </div>
+                        </div>
+                        <div class="alert-item reroute">
+                            <span class="reroute-icon">↱</span>
+                            <div>
+                                <strong>Faster Route via SV Road</strong>
+                                <span>Save 4 minutes via service road bypass</span>
+                            </div>
+                            <button class="btn-primary small mt-1 w-full">Accept Detour</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side: Navigation Map -->
+            <div class="dash-main">
+                <div class="nav-map-container glass-card">
+                    <div class="map-overlay-info glass-panel">
+                        <div class="next-turn">
+                            <div class="turn-icon">↱</div>
+                            <div class="turn-desc">
+                                <strong>Vile Parle Flyover Left</strong>
+                                <span>in <span id="distanceToTurn">500</span> m</span>
+                            </div>
+                        </div>
+                        <div class="map-controls mt-2">
+                             <button class="map-btn" id="recenterBtn">🎯 Recenter</button>
+                             <button class="map-btn" id="trafficLayerBtn">🚦 Traffic: ON</button>
+                        </div>
+                    </div>
+                    
+                    <!-- REAL LEAFLET MAP CONTAINER -->
+                    <div id="realMapContainer" class="full-size"></div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
