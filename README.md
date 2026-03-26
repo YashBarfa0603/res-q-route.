@@ -81,6 +81,9 @@ Tools: GitHub, Android Studio
 👩‍💻 Contributors
 
 Arohi Kate
+Amber Gangrade 
+Priyansh Shrivastav 
+Yash Barfa
 
 📌 Conclusion
 
